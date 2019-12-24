@@ -19,7 +19,7 @@ import (
     "strings"
 )
 
-var DefaultLogger = func() Loger {
+var DefaultLogger = func() Logfer {
     l := golog.New()
     l.Level = golog.DebugLevel
     l.TimeFormat = "2006-01-02 15:04:05"
@@ -44,11 +44,11 @@ type Logfer interface {
     Fatalf(format string, args ...interface{})
 }
 
-func New(conf LogConfig) Loger {
+func New(conf LogConfig) Logfer {
     return NewWithLogger(golog.New(), conf)
 }
 
-func NewWithLogger(log *golog.Logger, conf LogConfig) Loger {
+func NewWithLogger(log *golog.Logger, conf LogConfig) Logfer {
     log.Level = parserLogLevel(conf.Level)
 
     if conf.TimeFormat != "" {
