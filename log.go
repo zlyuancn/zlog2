@@ -19,6 +19,14 @@ import (
     "strings"
 )
 
+var DefaultLogger = func() *golog.Logger {
+    l := golog.New()
+    l.Level = golog.DebugLevel
+    l.TimeFormat = "2006-01-02 15:04:05"
+    l.Printer.IsTerminal = true
+    return l
+}
+
 func New(conf LogConfig) *golog.Logger {
     return NewWithLogger(golog.New(), conf)
 }
