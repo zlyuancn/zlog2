@@ -10,13 +10,14 @@ package zlog2
 
 import (
     "fmt"
-    "github.com/kataras/golog"
-    "gopkg.in/natefinch/lumberjack.v2"
     "io"
     "log"
     "os"
     "runtime"
     "strings"
+
+    "github.com/kataras/golog"
+    "gopkg.in/natefinch/lumberjack.v2"
 )
 
 var DefaultLogger = func() Logfer {
@@ -24,7 +25,7 @@ var DefaultLogger = func() Logfer {
     l.Level = golog.DebugLevel
     l.TimeFormat = "2006-01-02 15:04:05"
     l.Printer.IsTerminal = true
-    return l
+    return &logWrap{l}
 }()
 
 type Loger interface {
@@ -68,7 +69,7 @@ func NewWithLogger(log *golog.Logger, conf LogConfig) Logfer {
     if conf.ShowInitInfo {
         log.Info("zlog2 初始化成功")
     }
-    return log
+    return &logWrap{log}
 }
 
 func logHandler(conf LogConfig) golog.Handler {
@@ -107,7 +108,7 @@ func makeWriteSyncers(conf LogConfig) io.Writer {
         log.Fatal(fmt.Sprintf("无法创建日志目录: <%s>: %s", conf.Path, err))
     }
 
-    //构建lumberjack的hook
+    // 构建lumberjack的hook
     name := conf.Name
     if conf.AppendPid {
         name = fmt.Sprintf("%s_%d", name, os.Getpid())
