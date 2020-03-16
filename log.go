@@ -25,7 +25,7 @@ var DefaultLogger = func() Logfer {
     l.Level = golog.DebugLevel
     l.TimeFormat = "2006-01-02 15:04:05"
     l.Printer.IsTerminal = true
-    return &logWrap{l}
+    return &logWrap{log: l}
 }()
 
 type Loger interface {
@@ -45,12 +45,12 @@ type Logfer interface {
     Fatalf(format string, args ...interface{})
 }
 
-func New(conf LogConfig) Logfer {
+func New(conf LogConfig) LogferWrap {
     return NewWithLogger(golog.New(), conf)
 }
 
-func NewWithLogger(log *golog.Logger, conf LogConfig) Logfer {
-    log.Level = parserLogLevel(conf.Level)
+func NewWithLogger(log *golog.Logger, conf LogConfig) LogferWrap {
+    log.Level = parserLogLevel(Level(strings.ToLower(conf.Level)))
 
     if conf.TimeFormat != "" {
         log.SetTimeFormat(conf.TimeFormat)
@@ -69,13 +69,13 @@ func NewWithLogger(log *golog.Logger, conf LogConfig) Logfer {
     if conf.ShowInitInfo {
         log.Info("zlog2 初始化成功")
     }
-    return &logWrap{log}
+    return &logWrap{log: log}
 }
 
 func logHandler(conf LogConfig) golog.Handler {
     return func(l *golog.Log) bool {
         if !conf.InfoLeveNoLinenum || l.Level != golog.InfoLevel {
-            _, filename, line, ok := runtime.Caller(5 + conf.CallerSkip)
+            _, filename, line, ok := runtime.Caller(6 + conf.CallerSkip)
             if !ok {
                 filename, line = "-", 0
             }
@@ -85,15 +85,8 @@ func logHandler(conf LogConfig) golog.Handler {
     }
 }
 
-func parserLogLevel(level string) golog.Level {
-    l, ok := map[string]golog.Level{
-        "disable": golog.DisableLevel,
-        "debug":   golog.DebugLevel,
-        "info":    golog.InfoLevel,
-        "warn":    golog.WarnLevel,
-        "error":   golog.ErrorLevel,
-        "fatal":   golog.FatalLevel,
-    }[strings.ToLower(level)]
+func parserLogLevel(level Level) golog.Level {
+    l, ok := levelMapping[level]
     if ok {
         return l
     }

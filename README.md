@@ -24,7 +24,7 @@ l.Info("123")
 # 其他选项
 
 ```
-Level              string       // 日志等级, debug, info, warn, error, fatal
+Level              string       // 日志等级: disable, debug, info, warn, error, fatal
 WriteToFile        bool         // 日志是否输出到文件
 Name               string       // 日志文件名, 末尾会自动附加 .log 后缀
 AppendPid          bool         // 是否在日志文件名后附加进程号

@@ -8,17 +8,32 @@
 
 package zlog2
 
-const (
-    DisableLevel = "disable" // 禁用, 此等级不会输出任何日志
-    DebugLevel   = "debug"   //开发用, 生产模式下不应该是debug
-    InfoLevel    = "info"    //默认级别, 用于告知程序运行情况
-    WarnLevel    = "warn"    //比信息更重要，但不需要单独的人工检查。
-    ErrorLevel   = "error"   //高优先级的。如果应用程序运行正常，就不应该生成任何错误级别的日志。
-    Fatal        = "fatal"   //记录一条消息, 然后调用 os.Exit(1)
+import (
+    "github.com/kataras/golog"
 )
 
+type Level string
+
+const (
+    DisableLevel Level = "disable" // 禁用, 此等级不会输出任何日志
+    DebugLevel         = "debug"   // 开发用, 生产模式下不应该是debug
+    InfoLevel          = "info"    // 默认级别, 用于告知程序运行情况
+    WarnLevel          = "warn"    // 比信息更重要，但不需要单独的人工检查。
+    ErrorLevel         = "error"   // 高优先级的。如果应用程序运行正常，就不应该生成任何错误级别的日志。
+    FatalLevel         = "fatal"   // 记录一条消息, 然后调用 os.Exit(1)
+)
+
+var levelMapping = map[Level]golog.Level{
+    DisableLevel: golog.DisableLevel,
+    DebugLevel:   golog.DebugLevel,
+    InfoLevel:    golog.InfoLevel,
+    WarnLevel:    golog.WarnLevel,
+    ErrorLevel:   golog.ErrorLevel,
+    FatalLevel:   golog.FatalLevel,
+}
+
 type LogConfig struct {
-    Level              string // 日志等级, debug, info, warn, error, fatal
+    Level              string // 日志等级: disable, debug, info, warn, error, fatal
     WriteToFile        bool   // 日志是否输出到文件
     Name               string // 日志文件名, 末尾会自动附加 .log 后缀
     AppendPid          bool   // 是否在日志文件名后附加进程号
