@@ -10,6 +10,7 @@ package zlog2
 
 import (
     "fmt"
+    "sync"
 
     "github.com/kataras/golog"
 )
@@ -26,22 +27,27 @@ type logWrap struct {
     log     *golog.Logger
     befores []BeforeHandler
     afters  []AfterHandler
+    mx      sync.RWMutex
 }
 
 var _ LogferWrap = (*logWrap)(nil)
 
 func (m *logWrap) print(level Level, v ...interface{}) {
+    m.mx.RLock()
     for _, before := range m.befores {
         if before(level, v...) {
             return
         }
     }
+    m.mx.RUnlock()
 
     m.log.Log(parserLogLevel(level), v...)
 
+    m.mx.RLock()
     for _, after := range m.afters {
         after(level, v...)
     }
+    m.mx.RUnlock()
 }
 func (m *logWrap) Log(level Level, v ...interface{}) {
     m.print(level, v...)
@@ -88,15 +94,23 @@ func (m *logWrap) Fatalf(format string, args ...interface{}) {
 }
 
 func (m *logWrap) SetBeforeHandler(befores ...BeforeHandler) {
+    m.mx.Lock()
     m.befores = append(([]BeforeHandler)(nil), befores...)
+    m.mx.Unlock()
 }
 func (m *logWrap) AddBeforeHandler(befores ...BeforeHandler) {
+    m.mx.Lock()
     m.befores = append(m.befores, befores...)
+    m.mx.Unlock()
 }
 
 func (m *logWrap) SetAfterHandler(afters ...AfterHandler) {
+    m.mx.Lock()
     m.afters = append(([]AfterHandler)(nil), afters...)
+    m.mx.Unlock()
 }
 func (m *logWrap) AddAfterHandler(afters ...AfterHandler) {
+    m.mx.Lock()
     m.afters = append(m.afters, afters...)
+    m.mx.Unlock()
 }
