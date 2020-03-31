@@ -62,6 +62,6 @@ var DefaultConfig = LogConfig{
     IsTerminal:         true,
     ShowInitInfo:       true,
     ShowFileAndLinenum: false,
-    InfoLeveNoLinenum:  true,
+    InfoLeveNoLinenum:  false,
     CallerSkip:         0,
 }
