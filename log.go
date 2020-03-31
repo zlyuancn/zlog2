@@ -29,6 +29,7 @@ var DefaultLogger = func() Logfer {
 }()
 
 type Loger interface {
+    Log(level Level, v ...interface{})
     Debug(v ...interface{})
     Info(v ...interface{})
     Warn(v ...interface{})
@@ -38,6 +39,7 @@ type Loger interface {
 
 type Logfer interface {
     Loger
+    Logf(level Level, format string, args ...interface{})
     Debugf(format string, args ...interface{})
     Infof(format string, args ...interface{})
     Warnf(format string, args ...interface{})

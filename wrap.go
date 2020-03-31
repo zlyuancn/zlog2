@@ -30,7 +30,7 @@ type logWrap struct {
 
 var _ LogferWrap = (*logWrap)(nil)
 
-func (m *logWrap) Log(level Level, v ...interface{}) {
+func (m *logWrap) print(level Level, v ...interface{}) {
     for _, before := range m.befores {
         if before(level, v...) {
             return
@@ -43,42 +43,48 @@ func (m *logWrap) Log(level Level, v ...interface{}) {
         after(level, v...)
     }
 }
-
+func (m *logWrap) Log(level Level, v ...interface{}) {
+    m.print(level, v...)
+}
 func (m *logWrap) Debug(v ...interface{}) {
-    m.Log(DebugLevel, v...)
+    m.print(DebugLevel, v...)
 }
 func (m *logWrap) Info(v ...interface{}) {
-    m.Log(InfoLevel, v...)
+    m.print(InfoLevel, v...)
 }
 func (m *logWrap) Warn(v ...interface{}) {
-    m.Log(WarnLevel, v...)
+    m.print(WarnLevel, v...)
 }
 func (m *logWrap) Error(v ...interface{}) {
-    m.Log(ErrorLevel, v...)
+    m.print(ErrorLevel, v...)
 }
 func (m *logWrap) Fatal(v ...interface{}) {
-    m.Log(FatalLevel, v...)
+    m.print(FatalLevel, v...)
 }
 
+func (m *logWrap) Logf(level Level, format string, args ...interface{}) {
+    msg := fmt.Sprintf(format, args...)
+    m.print(level, msg)
+}
 func (m *logWrap) Debugf(format string, args ...interface{}) {
     msg := fmt.Sprintf(format, args...)
-    m.Log(DebugLevel, msg)
+    m.print(DebugLevel, msg)
 }
 func (m *logWrap) Infof(format string, args ...interface{}) {
     msg := fmt.Sprintf(format, args...)
-    m.Log(InfoLevel, msg)
+    m.print(InfoLevel, msg)
 }
 func (m *logWrap) Warnf(format string, args ...interface{}) {
     msg := fmt.Sprintf(format, args...)
-    m.Log(WarnLevel, msg)
+    m.print(WarnLevel, msg)
 }
 func (m *logWrap) Errorf(format string, args ...interface{}) {
     msg := fmt.Sprintf(format, args...)
-    m.Log(ErrorLevel, msg)
+    m.print(ErrorLevel, msg)
 }
 func (m *logWrap) Fatalf(format string, args ...interface{}) {
     msg := fmt.Sprintf(format, args...)
-    m.Log(FatalLevel, msg)
+    m.print(FatalLevel, msg)
 }
 
 func (m *logWrap) SetBeforeHandler(befores ...BeforeHandler) {
