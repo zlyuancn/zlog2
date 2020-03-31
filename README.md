@@ -8,8 +8,11 @@
 # 简单使用
 
 ```go
-l := zlog2.New(zlog2.DefaultConfig)
-l.Info("123")
+zlog2.Debug("debug")
+zlog2.Info("info")
+zlog2.Warn("warn")
+zlog2.Error("error")
+zlog2.Fatal("fatal")
 ```
 
 # 将日志输出到文件
