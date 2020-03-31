@@ -20,13 +20,7 @@ import (
     "gopkg.in/natefinch/lumberjack.v2"
 )
 
-var DefaultLogger = func() Logfer {
-    l := golog.New()
-    l.Level = golog.DebugLevel
-    l.TimeFormat = "2006-01-02 15:04:05"
-    l.Printer.IsTerminal = true
-    return &logWrap{log: l}
-}()
+var DefaultLogger Logfer = defaultLog
 
 type Loger interface {
     Log(level Level, v ...interface{})
@@ -65,7 +59,7 @@ func NewWithLogger(log *golog.Logger, conf LogConfig) LogferWrap {
     log.Printer.IsTerminal = true
 
     if conf.ShowFileAndLinenum {
-        log.Handle(logHandler(conf))
+        log.Handle(logHandler(conf.CallerSkip, conf.InfoLeveNoLinenum))
     }
 
     if conf.ShowInitInfo {
@@ -74,10 +68,10 @@ func NewWithLogger(log *golog.Logger, conf LogConfig) LogferWrap {
     return &logWrap{log: log}
 }
 
-func logHandler(conf LogConfig) golog.Handler {
+func logHandler(callerSkip int, infoLeveNoLinenum bool) golog.Handler {
     return func(l *golog.Log) bool {
-        if !conf.InfoLeveNoLinenum || l.Level != golog.InfoLevel {
-            _, filename, line, ok := runtime.Caller(6 + conf.CallerSkip)
+        if !infoLeveNoLinenum || l.Level != golog.InfoLevel {
+            _, filename, line, ok := runtime.Caller(6 + callerSkip)
             if !ok {
                 filename, line = "-", 0
             }
